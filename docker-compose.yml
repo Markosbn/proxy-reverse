@@ -25,6 +25,8 @@ services:
     image: markosdjs/node-app
     container_name: node-app
     working_dir: /usr/src/app
+    volumes:
+      - ./app:/usr/src/app
     networks:
       - proxy-network
     depends_on:
