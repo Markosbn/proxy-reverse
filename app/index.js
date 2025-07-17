@@ -9,17 +9,6 @@ var pool = mysql.createPool({
   password : 'root',
   database : 'cadastro'
 });
- 
-pool.query(
-  `CREATE TABLE IF NOT EXISTS people (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(255) NOT NULL
-  )`,
-  function (error, results, fields) {
-    if (error) throw error;
-    console.log('Table checked/created!');
-  }
-);
 
 app.get('/', (req, res) => {
   const names = ['Fulano', 'Ciclano', 'Beltrano', 'Maria', 'João'];

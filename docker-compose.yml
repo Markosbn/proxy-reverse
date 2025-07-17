@@ -10,30 +10,35 @@ services:
       MYSQL_DATABASE: cadastro
       MYSQL_USER: usr
       MYSQL_PASSWORD: root
-    
+    command: --default-authentication-plugin=mysql_native_password
     restart: always
     ports:
       - "3306:3306"
     volumes:
-      - ../temp/db_data/mysql:/var/lib/mysql
+      - db_data:/var/lib/mysql
+      - ./database/:/docker-entrypoint-initdb.d
     networks:
       - proxy-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p$$MYSQL_ROOT_PASSWORD"]
+      interval: 5s
+      timeout: 10s
+      retries: 5
 
   node-app:
     build:
       context: .
     image: markosdjs/node-app
+    entrypoint: sh -c "npm install && node index.js"
     container_name: node-app
     working_dir: /usr/src/app
     volumes:
       - ./app:/usr/src/app
-      - /usr/src/app/node_modules
     networks:
       - proxy-network
     depends_on:
-      - database
-    expose:
-      - "3000"
+      database:
+        condition: service_healthy
 
   nginx:
     image: nginx:latest
@@ -50,3 +55,6 @@ services:
 networks:
   proxy-network:
     driver: bridge
+volumes:
+  db_data:
+    driver: local
